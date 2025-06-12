@@ -1,13 +1,12 @@
-// main.jsx
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import App from './App.jsx';
-import SessionCreate from './SessionCreate.jsx';
-import SessionJoin from './SessionJoin.jsx';
-import './index.css';
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+import App from './App';
+import SessionCreate from './SessionCreate';
+import SessionJoin from './SessionJoin';
+
+createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
