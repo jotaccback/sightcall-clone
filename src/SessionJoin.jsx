@@ -1,56 +1,42 @@
 import React, { useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import Peer from "peerjs";
-import { useLocation } from "react-router-dom";
 
-export default function Session() {
-  const localVideoRef = useRef(null);
-  const remoteVideoRef = useRef(null);
-  const location = useLocation();
+export default function SessionJoin() {
+  const [searchParams] = useSearchParams();
+  const roomId = searchParams.get("room");
+
+  const localVideoRef = useRef();
+  const remoteVideoRef = useRef();
 
   useEffect(() => {
-    const query = new URLSearchParams(location.search);
-    const roomId = query.get("room");
+    const peer = new Peer();
 
-    const init = async () => {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 1280 }, height: { ideal: 720 } },
-        audio: true,
+    peer.on("open", (id) => {
+      const call = peer.call(roomId, localVideoRef.current.srcObject);
+
+      call.on("stream", (remoteStream) => {
+        remoteVideoRef.current.srcObject = remoteStream;
       });
+    });
 
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
       localVideoRef.current.srcObject = stream;
-
-      const peer = new Peer({
-        host: "peerjs.com",
-        port: 443,
-        secure: true,
-      });
-
-      peer.on("open", () => {
-        const call = peer.call(roomId, stream);
-        call.on("stream", (remoteStream) => {
-          remoteVideoRef.current.srcObject = remoteStream;
-        });
-      });
-    };
-
-    init();
-  }, [location]);
+    });
+  }, [roomId]);
 
   return (
-    <div style={{ textAlign: "center", padding: "2rem" }}>
-      <h2>Conectado à Sessão</h2>
-      <div style={{ display: "flex", justifyContent: "center", gap: "20px" }}>
-        <div>
-          <h3>Você</h3>
-          <video ref={localVideoRef} autoPlay muted style={{ width: "300px" }} />
-        </div>
-        <div>
-          <h3>Remoto</h3>
-          <video ref={remoteVideoRef} autoPlay style={{ width: "300px" }} />
-        </div>
-      </div>
+    <div style={{ padding: "2rem", textAlign: "center" }}>
+      <h2>Você entrou na sessão</h2>
+
+      <h3>Seu vídeo</h3>
+      <video ref={localVideoRef} autoPlay muted playsInline width="300" />
+
+      <h3>Vídeo remoto</h3>
+      <video ref={remoteVideoRef} autoPlay playsInline width="300" />
     </div>
   );
 }
+
 
 
