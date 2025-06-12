@@ -11,7 +11,6 @@ import {
   signOut,
 } from 'firebase/auth';
 
-// Configuração do Firebase
 const firebaseConfig = {
   apiKey: 'AIzaSyDox1zys5KhscmkmTZlm_LovFoNhfybGlw',
   authDomain: 'magic-16b98.firebaseapp.com',
@@ -21,7 +20,6 @@ const firebaseConfig = {
   appId: '1:25247864597:web:813f85fc5b48ab5105bb1c',
 };
 
-// Inicializa Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
@@ -31,12 +29,13 @@ export default function App() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
-  const sessionId = uuidv4().slice(0, 6);
+  const [sessionId, setSessionId] = useState(uuidv4().slice(0, 6));
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
+
     return () => unsubscribe();
   }, []);
 
@@ -52,7 +51,7 @@ export default function App() {
     }
   };
 
-  const exportDummyPDF = () => {
+  const exportPDF = () => {
     const doc = new jsPDF();
     doc.text(`Relatório de ${user.email}`, 10, 10);
     doc.text(`Sessão ID: ${sessionId}`, 10, 20);
@@ -96,20 +95,18 @@ export default function App() {
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
       <h2>Bem-vindo, {user.email}</h2>
-      <button onClick={() => signOut(auth)} style={{ marginRight: '10px' }}>
-        Sair
-      </button>
-      <button onClick={exportDummyPDF}>Exportar Relatório</button>
-      <br />
-      <button onClick={() => navigate('/create')} style={{ marginTop: '10px' }}>
-        Iniciar Sessão de Vídeo
-      </button>
-      <br />
-      <button onClick={() => navigate('/join')} style={{ marginTop: '10px' }}>
-        Entrar em Sessão de Vídeo
-      </button>
-      <h3 style={{ marginTop: '20px' }}>Seus relatórios:</h3>
-      {/* Aqui você pode listar os relatórios exportados futuramente */}
+      <div style={{ marginBottom: '20px' }}>
+        <button onClick={() => signOut(auth)} style={{ margin: '5px' }}>Sair</button>
+        <button onClick={exportPDF} style={{ margin: '5px' }}>Exportar Relatório</button>
+        <button onClick={() => navigate('/create')} style={{ margin: '5px' }}>
+          Iniciar Sessão de Vídeo
+        </button>
+        <button onClick={() => navigate('/join')} style={{ margin: '5px' }}>
+          Entrar em Sessão de Vídeo
+        </button>
+      </div>
+      <h3>Seus relatórios:</h3>
+      <p>(Os relatórios serão salvos localmente em PDF quando exportar)</p>
     </div>
   );
 }
