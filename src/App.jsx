@@ -11,6 +11,7 @@ import {
   signOut,
 } from 'firebase/auth';
 
+// Configuração do Firebase
 const firebaseConfig = {
   apiKey: 'AIzaSyDox1zys5KhscmkmTZlm_LovFoNhfybGlw',
   authDomain: 'magic-16b98.firebaseapp.com',
@@ -20,13 +21,13 @@ const firebaseConfig = {
   appId: '1:25247864597:web:813f85fc5b48ab5105bb1c',
 };
 
+// Inicializa Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 export default function App() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
@@ -35,9 +36,7 @@ export default function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setLoading(false);
     });
-
     return () => unsubscribe();
   }, []);
 
@@ -54,17 +53,11 @@ export default function App() {
   };
 
   const exportDummyPDF = () => {
-    if (!user) return;
-
     const doc = new jsPDF();
     doc.text(`Relatório de ${user.email}`, 10, 10);
     doc.text(`Sessão ID: ${sessionId}`, 10, 20);
     doc.save(`relatorio-${sessionId}.pdf`);
   };
-
-  if (loading) {
-    return <p style={{ textAlign: 'center' }}>Carregando...</p>;
-  }
 
   if (!user) {
     return (
@@ -115,6 +108,8 @@ export default function App() {
       <button onClick={() => navigate('/join')} style={{ marginTop: '10px' }}>
         Entrar em Sessão de Vídeo
       </button>
+      <h3 style={{ marginTop: '20px' }}>Seus relatórios:</h3>
+      {/* Aqui você pode listar os relatórios exportados futuramente */}
     </div>
   );
 }
