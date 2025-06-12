@@ -11,6 +11,7 @@ import {
   signOut,
 } from "firebase/auth";
 
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDox1zys5KhscmkmTZlm_LovFoNhfybGlw",
   authDomain: "magic-16b98.firebaseapp.com",
@@ -32,9 +33,10 @@ export default function App() {
   const sessionId = uuidv4().slice(0, 6);
 
   useEffect(() => {
-    onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
+    return () => unsubscribe();
   }, []);
 
   const handleAuth = async () => {
@@ -51,13 +53,12 @@ export default function App() {
 
   const exportDummyPDF = () => {
     const doc = new jsPDF();
-    doc.text(`Relatório de ${user?.email || "Usuário"}`, 10, 10);
+    doc.text(`Relatório de ${user?.email || "Anônimo"}`, 10, 10);
     doc.text(`Sessão ID: ${sessionId}`, 10, 20);
     doc.save(`relatorio-${sessionId}.pdf`);
   };
 
-  // Permite acesso livre à /join
-  if (!user && window.location.pathname !== "/join") {
+  if (!user) {
     return (
       <div style={{ padding: "2rem", textAlign: "center" }}>
         <h1>SightCall 2.0</h1>
@@ -77,21 +78,13 @@ export default function App() {
           style={{ padding: "8px", margin: "5px", width: "200px" }}
         />
         <br />
-        <button
-          onClick={handleAuth}
-          style={{ padding: "10px 20px", marginTop: "10px" }}
-        >
+        <button onClick={handleAuth} style={{ padding: "10px 20px", marginTop: "10px" }}>
           {isLogin ? "Entrar" : "Cadastrar"}
         </button>
         <br />
         <a
           onClick={() => setIsLogin(!isLogin)}
-          style={{
-            color: "blue",
-            cursor: "pointer",
-            display: "block",
-            marginTop: "10px",
-          }}
+          style={{ color: "blue", cursor: "pointer", display: "block", marginTop: "10px" }}
         >
           {isLogin ? "Criar conta" : "Já tenho conta"}
         </a>
@@ -101,7 +94,7 @@ export default function App() {
 
   return (
     <div style={{ padding: "2rem", textAlign: "center" }}>
-      <h2>Bem-vindo, {user?.email}</h2>
+      <h2>Bem-vindo, {user.email}</h2>
       <button onClick={() => signOut(auth)} style={{ marginRight: "10px" }}>
         Sair
       </button>
